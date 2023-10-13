@@ -9,21 +9,31 @@
     <h1>Messages:</h1>
     <ul id="messages"></ul>
     <form id="form">
-      <input id="input" />
+      <input id="message" autocomplete="off" />
+      <input id="name" placeholder="your name" autocomplete="off" />
       <button>Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const form = document.getElementById("form");
-      const input = document.getElementById("input");
-			const socket = io()
+      const message = document.getElementById("message");
+      const name = document.getElementById("name");
+      const messages = document.getElementById("messages");
+      const socket = io();
 
       form.addEventListener("submit", (event) => {
         event.preventDefault();
-        if (input.value) {
-          console.log(input.value);
+        if (message.value && name.value) {
+          socket.emit("new message", { name: name.value, message: message.value });
+          message.value = "";
         }
+      });
+      socket.on("new message", (message) => {
+        const item = document.createElement("li");
+        item.textContent = message.name + ": " + message.message;
+        messages.append(item);
+        window.scrollTo(0, document.body.scrollHeight);
       });
     </script>
   </body>
