@@ -1,29 +1,15 @@
 const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
-
-const { MongoClient } = require("mongodb");
+const sqlite3 = require("sqlite3").verbose();
 async function main() {
-  const pwd = encodeURIComponent("2Wr&p%S4");
-  const uri = "mongodb+srv://patrykawojnarowski:" + pwd + "@message-app.ubyzplz.mongodb.net/?retryWrites=true&w=majority";
-  const client = new MongoClient(uri);
-  const dbName = "message-app";
-  const collectionName = "messages";
-
-  const database = await client.db(dbName);
-  console.log("connected to db");
-  collection = database.collection(collectionName);
-  console.log("connected to collection");
-
-  async function insertMessage(message) {
-    try {
-      const insertResult = collection.insertOne(message).then(() => {
-        console.log("inserted successfully");
-      });
-    } catch (err) {
+  const db = new sqlite3.Database(":memory:", (err) => {
+    if (err) {
       console.log(err);
+    } else {
+      console.log("connected to database");
     }
-  }
+  })
 
   const app = express();
   const server = createServer(app);
@@ -38,7 +24,6 @@ async function main() {
   io.on("connection", (socket) => {
     console.log("User connected");
     socket.on("new message", (message) => {
-      insertMessage(message);
       io.emit("new message", message);
     });
     socket.on("disconnect", () => {
