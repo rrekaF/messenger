@@ -10,9 +10,15 @@
     <ul id="messages"></ul>
     <form id="form">
       <input id="message" autocomplete="off" />
-      <input id="name" placeholder="your name" autocomplete="off" />
+      <input id="name" placeholder="currently uid" autocomplete="off" />
       <button>Send</button>
     </form>
+    <div id="users-list">
+      <ul id="users"></ul>
+      <form id="get-users-form">
+        <button>Get users list</button>
+      </form>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -20,7 +26,23 @@
       const message = document.getElementById("message");
       const name = document.getElementById("name");
       const messages = document.getElementById("messages");
+      const get_users_form = document.getElementById("get-users-form");
+      const users = document.getElementById("users");
       const socket = io();
+
+      get_users_form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        console.log("Get users button pressed");
+        socket.emit("get users");
+      });
+      socket.on("get users", (users_rows) => {
+        console.log("socket.on get users fired: " + users_rows);
+        users_rows.forEach((element) => {
+          const user = document.createElement("li");
+          user.textContent = element.uid + ": " + element.name;
+          users.append(user);
+        });
+      });
 
       form.addEventListener("submit", (event) => {
         event.preventDefault();
